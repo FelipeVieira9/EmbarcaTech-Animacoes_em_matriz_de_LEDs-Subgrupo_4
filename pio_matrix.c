@@ -7,35 +7,86 @@
 #include "hardware/adc.h"
 #include "pico/bootrom.h"
 #include "pio_matrix.pio.h"
-#include "desenhos/desenhosABCD.c"
-#include "desenhos/carinhas.c"
-#include "desenhos/estrela.c"
 #include "funcoes/mudar_LED.c"
 #include "funcoes/scan_keypad.c"
-#include "desenhos/coracao.c"
-#include "desenhos/chuva.c"
-#include "desenhos/pulo.c"
-#include "desenhos/animacao_circulo.c"
-#include "desenhos/formas_geometricas.c"
 
 
+#define Led_RED 11
+#define Led_GREEN 12
+#define Led_BLUE 13
 
-//vetor para criar imagem na matriz de led - 1
-double desenho1[25] =   {0.0, 0.3, 0.3, 0.3, 0.0,
-                        0.0, 0.3, 0.0, 0.3, 0.0, 
-                        0.0, 0.3, 0.3, 0.3, 0.0,
-                        0.0, 0.3, 0.0, 0.3, 0.0,
-                        0.0, 0.3, 0.3, 0.3, 0.0};
+#define Botao_A 5
+#define Botao_B 6
 
-//vetor para criar imagem na matriz de led - 2
-double animacao1[6][25] = {
-    {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-    {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.1, 0.1, 0.1, 0.1},
-    {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1},
-    {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1},
-    {0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1},
-    {0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1}
-};
+double numeros[10][25] = {
+                        {0.8, 0.8, 0.8, 0.8, 0.8, // 0
+                        0.8, 0.0, 0.0, 0.0, 0.8, 
+                        0.8, 0.0, 0.0, 0.0, 0.8,
+                        0.8, 0.0, 0.0, 0.0, 0.8,
+                        0.8, 0.8, 0.8, 0.8, 0.8},
+                        
+                        {0.0, 0.0, 0.8, 0.0, 0.0, // 1
+                        0.0, 0.0, 0.8, 0.8, 0.0, 
+                        8.0, 0.0, 0.8, 0.0, 0.0,
+                        0.0, 0.0, 0.8, 0.0, 0.0,
+                        0.0, 0.0, 0.8, 0.0, 0.0},
+
+                        {0.8, 0.8, 0.8, 0.8, 0.8, // 2
+                        0.8, 0.0, 0.0, 0.0, 0.0, 
+                        0.8, 0.8, 0.8, 0.8, 0.8,
+                        0.0, 0.0, 0.0, 0.0, 0.8,
+                        0.8, 0.8, 0.8, 0.8, 0.8},
+
+                        {0.8, 0.8, 0.8, 0.8, 0.8, // 3
+                        0.8, 0.0, 0.0, 0.0, 0.0, 
+                        0.8, 0.8, 0.8, 0.8, 0.8,
+                        0.8, 0.0, 0.0, 0.0, 0.0,
+                        0.8, 0.8, 0.8, 0.8, 0.8},
+
+                        {0.8, 0.0, 0.0, 0.0, 0.8, // 4
+                        0.8, 0.0, 0.0, 0.0, 0.8, 
+                        0.8, 0.8, 0.8, 0.8, 0.8,
+                        0.8, 0.0, 0.0, 0.0, 0.0,
+                        0.0, 0.0, 0.0, 0.0, 0.8},
+
+                        {0.8, 0.8, 0.8, 0.8, 0.8, // 5
+                        0.0, 0.0, 0.0, 0.0, 0.8, 
+                        0.8, 0.8, 0.8, 0.8, 0.8,
+                        0.8, 0.0, 0.0, 0.0, 0.0,
+                        0.8, 0.8, 0.8, 0.8, 0.8},
+
+                        {0.8, 0.8, 0.8, 0.8, 0.8, // 6
+                        0.0, 0.0, 0.0, 0.0, 0.8, 
+                        0.8, 0.8, 0.8, 0.8, 0.8,
+                        0.8, 0.0, 0.0, 0.0, 0.8,
+                        0.8, 0.8, 0.8, 0.8, 0.8},
+
+                        {0.8, 0.8, 0.8, 0.8, 0.8, // 7
+                        0.0, 0.8, 0.0, 0.0, 0.0, 
+                        0.0, 0.0, 0.8, 0.0, 0.0,
+                        0.0, 0.0, 0.0, 0.8, 0.0,
+                        0.8, 0.0, 0.0, 0.0, 0.0},
+
+                        {0.8, 0.8, 0.8, 0.8, 0.8, // 8
+                        0.8, 0.0, 0.0, 0.0, 0.8, 
+                        0.8, 0.8, 0.8, 0.8, 0.8,
+                        0.8, 0.0, 0.0, 0.0, 0.8,
+                        0.8, 0.8, 0.8, 0.8, 0.8},
+
+                        {0.8, 0.8, 0.8, 0.8, 0.8, // 9
+                        0.8, 0.0, 0.0, 0.0, 0.8, 
+                        0.8, 0.8, 0.8, 0.8, 0.8,
+                        0.8, 0.0, 0.0, 0.0, 0.0,
+                        0.0, 0.0, 0.0, 0.0, 0.8}
+
+                        };
+
+static volatile uint32_t last_time = 0; // Armazena o tempo do último evento (em microssegundos)
+volatile int contador = 0; // Contador que vai mudar o valor nas interrupções, por isso voltatile
+
+// Função que vai pra interrupção
+static void gpio_irq_handler(uint gpio, uint32_t events);
+
 //função principal
 int main()
 {
@@ -55,152 +106,71 @@ int main()
     uint sm = pio_claim_unused_sm(pio, true);
     pio_matrix_program_init(pio, sm, offset, OUT_PIN);
 
-    //Inicializar o teclado matricial
-    for (int i = 0; i < ROWS; i++) {
-        gpio_init(rows[i]);//Inicializa a GPIO das linhas
-        gpio_set_dir(rows[i], GPIO_OUT);//Define como saída
-        gpio_put(rows[i], 1);  // Mantém as linhas em nível alto
-    }
-    for (int j = 0; j < COLS; j++) {
-        gpio_init(cols[j]);//Inicializa a GPIO das colunas
-        gpio_set_dir(cols[j], GPIO_IN);//Define como entrada
-        gpio_pull_up(cols[j]);  // Ativa resistor pull-up nas colunas
-    }
+    // INICIAR LEDS
+    gpio_init(Led_RED);
+    gpio_set_dir(Led_RED, GPIO_OUT);
+    gpio_put(Led_RED, 0);
 
+    gpio_init(Led_GREEN);
+    gpio_set_dir(Led_GREEN, GPIO_OUT);
+    gpio_put(Led_GREEN, 0);
+
+    gpio_init(Led_BLUE);
+    gpio_set_dir(Led_BLUE, GPIO_OUT);
+    gpio_put(Led_BLUE, 0);
+
+    // INICIAR BOTOES
+    gpio_init(Botao_A);
+    gpio_set_dir(Botao_A, GPIO_IN);
+    gpio_pull_up(Botao_A);
+
+    gpio_init(Botao_B);
+    gpio_set_dir(Botao_B, GPIO_IN);
+    gpio_pull_up(Botao_B);
+
+    // INTERRUPÇÔES
+    gpio_set_irq_enabled_with_callback(Botao_A, GPIO_IRQ_EDGE_FALL, true, &gpio_irq_handler);
+    gpio_set_irq_enabled_with_callback(Botao_B, GPIO_IRQ_EDGE_FALL, true, &gpio_irq_handler);
+
+    // Estado anterior do led
+    int estado_anterior = 0;
     while (true) {
-        char key = scan_keypad();
-        if (key != '\0') {         // Se uma tecla foi pressionada
-            printf("A tecla pressionada foi: %c\n", key);
-            if(key == 'A'){
-               printf("Desligando todos os LEDs\n");
-               desenho_pio(desenhoA, valor_led, pio, sm, 0, 0, 0);//Os três últimos argumentos são RGB -(0,0,0)=Desligado
-            }
-            else if(key == 'B'){
-              printf("LEDs azuis 100%% de intencidade\n");
-              desenho_pio(desenhoB, valor_led, pio, sm, 0, 0, 1);////Os três últimos termos são RGB -(0,0,1)=Azul
-            }
-            else if(key == 'C'){
-              printf("LEDs vermelhos 80%% de intencidade\n");
-              desenho_pio(desenhoC, valor_led, pio, sm, 1, 0, 0);////Os três últimos termos são RGB -(1,0,0)=Vermelho
-            }
-            else if(key == 'D'){
-              printf("LEDs verde 50%% de intencidade\n");
-              desenho_pio(desenhoD, valor_led, pio, sm, 0, 1, 0);////Os três últimos termos são RGB:(1,0,0)=Verde
-            }
-            else if(key == '#'){
-              printf("LEDs branco 20%% de intencidade\n");
-              desenho_pio(desenho_jgvelha, valor_led, pio, sm, 1, 1, 1);////Os três últimos termos são RGB:(1,1,1)=Branco
-            }
-            else if(key == '*'){
-              printf("HABILITANDO O MODO GRAVAÇÃO");
-	          reset_usb_boot(0,0); //habilita o modo de gravação do microcontrolador
-            }
-            else if(key == '1'){
-              printf("Animação 1 rodando\n");
-              for (int j=0;j<6;j++)
-              {
-                desenho_pio(animacao1[j], valor_led, pio, sm, 1, 0, 1);////Os três últimos termos são RGB:(1,0,1)=Roxo
-                sleep_ms(500);
-              }
-            }
-            else if(key == '2'){
-              printf("Emojis\n");
-              
-              desenho_pio(emoji1, valor_led, pio, sm, 0, 0, 1);
-              sleep_ms(500);
-              desenho_pio(emoji2, valor_led, pio, sm, 0, 0, 1);
-              sleep_ms(500);
-              desenho_pio(emoji3, valor_led, pio, sm, 0, 0, 1);
-              sleep_ms(500);
-              desenho_pio(emoji4, valor_led, pio, sm, 0, 0, 1);
-              sleep_ms(500);
-              desenho_pio(emoji5, valor_led, pio, sm, 0, 0, 1);
-              sleep_ms(500);
-              desenho_pio(emoji6, valor_led, pio, sm, 0, 0, 1);
-              sleep_ms(500);
-              desenho_pio(emoji7, valor_led, pio, sm, 0, 0, 1);////Os três últimos termos são RGB:(0,0,1)= Azul            
-            }
-            else if(key == '3'){
-              printf("Estrela\n");
-              int cores[3][3] = {
-                {1, 0, 0}, // Vermelho
-                {0, 1, 0}, // Verde
-                {0, 0, 1}  // Azul
-               };
-              for (int j = 0; j < 3; j++) {
-                  // Estrela surge trocando de cores na ordem descrita pela variavel cores
-                  for (int c = 0; c < 3; c++) {
-                      desenho_pio(estrela[j], valor_led, pio, sm, cores[c][0], cores[c][1], cores[c][2]);
-                      sleep_ms(300);
-                  }
-              }
-              for (int j = 2; j >= 0; j--) {
-                  // Estrela diminui trocando de cores na ordem descrita pela variavel cores
-                  for (int c = 0; c < 3; c++) {
-                      desenho_pio(estrela[j], valor_led, pio, sm, cores[c][0], cores[c][1], cores[c][2]);
-                      sleep_ms(300);
-                  }
-              }
-              for (int j = 0; j < 3; j++) {
-                  // Estrela surge novamente trocando de cores na ordem descrita pela variavel cores
-                  for (int c = 0; c < 3; c++) {
-                      desenho_pio(estrela[j], valor_led, pio, sm, cores[c][0], cores[c][1], cores[c][2]);
-                      sleep_ms(300);
-                  }
-              }
-            }
-	          else if (key == '4'){
-              printf("Coração\n");//Desenha um coração vermelho
-              coracao_animacao(pio, sm);
-            }
-            else if (key == '5'){
-              printf("Chuva\n");//Desenha chuva azul
-              chuva_animacao(pio, sm);
-            } else if (key == '6') {
-              printf("Animacao de movimentacao\n");
-              for (int16_t i = 0; i < 5; i++) {
-                for (int16_t j = 0; j < NUM_PIXELS; j++) {
-                    if (j < 5) {
-                        valor_led = matrix_rgb(b = 0.0, animacao_1[4 - i][24 - j], g = 0.0);
-                        pio_sm_put_blocking(pio, sm, valor_led);
-                    } else {
-                        valor_led = matrix_rgb(animacao_1[4 - i][24 - j], r = 0.0, g = 0.0);
-                        pio_sm_put_blocking(pio, sm, valor_led);
-                    }
-                }
-                  sleep_ms(500);
-                }
-            } else if (key == '7') {
-              printf("Circulo animado\n");
-              for (int16_t i = 0; i < 5; i++) {
-                for (int16_t j = 0; j < NUM_PIXELS; j++) {
-                    if (i > 1) {
-                        valor_led = matrix_rgb(b = 0.0, animacao_2[i][24 - j], g = 0.0);
-                        pio_sm_put_blocking(pio, sm, valor_led);
-                    } else {
-                        valor_led = matrix_rgb(animacao_2[i][24 - j], r = 0.0, g = 0.0);
-                        pio_sm_put_blocking(pio, sm, valor_led);
-                    }
-                }
-                sleep_ms(500);
-            }
-            } else if (key == '8') {
-		    printf("Formas Geometricas\n");
-
-		    desenho_pio(formar_x, valor_led, pio, sm, 0, 0, 1);
-		    sleep_ms(500);
-		    desenho_pio(formar_circulo, valor_led, pio, sm, 0, 0, 1);
-		    sleep_ms(500);
-		    desenho_pio(formar_triangulo, valor_led, pio, sm, 0, 0, 1);
-		    sleep_ms(500);
-		    desenho_pio(formar_quadrado, valor_led, pio, sm, 0, 0, 1);
-		    sleep_ms(500);
-	    } 
-	    else {
-              printf("Não foi programado uma ação para esta tecla\n");
-            }
-            }
-        sleep_ms(100);
+        desenho_pio(numeros[contador], valor_led, pio, sm, 0, 0, 1); // Desenha na matriz de led
+        if (estado_anterior == 0) {
+          gpio_put(Led_RED, 1);
+          estado_anterior = 1;
+        } else {
+          gpio_put(Led_RED, 0);
+          estado_anterior = 0;
+        }
+        sleep_ms(20);
         }
     
+}
+
+static void gpio_irq_handler(uint gpio, uint32_t events) {
+  // Tempo atual em (ms)
+  uint32_t current_time = to_us_since_boot(get_absolute_time()); 
+
+  // Verificar o tempo que passou
+  if ((current_time - last_time) > 200000) { // 200ms de deboucing
+    last_time = current_time;
+    if (gpio == 5) { // Se botão A
+    contador++;
+    
+    if (contador > 9) {
+      contador = 0;
+    }
+
+    } else { // Se B
+    contador--;
+    
+    if (contador < 0) {
+      contador = 9;
+    }
+
+    }
+    
+    printf("Numero: %d\n", contador);
+  }
 }
