@@ -8,7 +8,7 @@
 #include "pico/bootrom.h"
 #include "pio_matrix.pio.h"
 #include "funcoes/mudar_LED.c"
-#include "funcoes/scan_keypad.c"
+
 
 
 #define Led_RED 11
@@ -143,7 +143,7 @@ int main()
           gpio_put(Led_RED, 0);
           estado_anterior = 0;
         }
-        sleep_ms(20);
+        sleep_ms(200);
         }
     
 }
